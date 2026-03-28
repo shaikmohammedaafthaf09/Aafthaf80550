@@ -1,0 +1,30 @@
+class Solution:
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        n = len(heights)
+        if n == 0: return 0
+
+        # left[i] = nearest index to the left with a height < heights[i]
+        # left[i] = sup({k in [0, i) : heights[k] < heights[i]}), with sup(∅) = -1
+        left = [-1] * n
+        stack = []
+        for i in range(n):
+            while stack and heights[stack[-1]] >= heights[i]:
+                stack.pop()
+            if stack:
+                left[i] = stack[-1]
+            stack.append(i)
+
+        # right[i] = nearest index to the right with a height < heights[i]
+        # right[i] = inf({k in (i, n) : heights[k] < heights[i]}), with inf(∅) = n
+        right = [n] * n
+        stack = []
+        for i in range(n - 1, -1, -1):
+            while stack and heights[stack[-1]] >= heights[i]:
+                stack.pop()
+            if stack:
+                right[i] = stack[-1]
+            stack.append(i)
+
+        # The max area is height[i] * width between boundaries
+        # areas[i] = heights[i] * (right[i] - left[i] - 1)
+        return max(h * (r - l - 1) for h, l, r in zip(heights, left, right))
